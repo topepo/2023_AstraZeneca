@@ -302,7 +302,7 @@ detach("package:stats", character.only = TRUE)
 ```{r load-tm}
 #| warning: false
 library(tidymodels)
-tidymodels_prefer(quiet = FALSE)
+tidymodels_prefer()
 
 data(Chicago, package = "modeldata")
 ```
@@ -986,6 +986,119 @@ You have two options:
  - Use sub-sampling methods for class imbalances to pre-process the data.
 
 How do we find the possible recipe steps? 
+
+## Picking a final model
+
+Normally, after searching through models, we pick one that we think should go forward. 
+
+```{r}
+#| label: finalize
+nnet_wflow <- 
+  nnet_rec %>% 
+  workflow(nnet_mod) %>% 
+  finalize_workflow(best_nnet)
+nnet_wflow
+```
+
+## Fitting the final model
+
+Let's fit a model of ours on the the entire training set.
+
+If we originally used `initial_split()`, we can also use `last_fit()` to do this: 
+
+```{r}
+#| label: last-fit
+test_res <- 
+  nnet_wflow %>% 
+  last_fit(split = ad_split)
+
+extract_fit_engine(test_res)
+```
+
+## Test set evaluation
+
+_Ordinarily_, we would use `collect_metrics()` on this to get our test set results. 
+
+However, we have to apply the calibration the test set predictions first: 
+
+```{r}
+#| label: test-cal
+
+test_pred <- 
+  test_res %>% 
+  collect_predictions() %>% 
+  cal_apply(ad_cal)
+
+cls_metrics <- metric_set(roc_auc, brier_class)
+cls_metrics(test_pred, Class, .pred_Impaired)
+```
+
+## Test set ROC curve
+
+:::: {.columns}
+
+::: {.column width="50%"}
+```{r}
+#| label: roc-curve-calc
+#| eval: false
+test_pred %>% 
+  roc_curve(Class, .pred_Impaired) %>% 
+  autoplot()
+```
+:::
+
+::: {.column width="50%"}
+```{r}
+#| label: roc-curve
+#| echo: false
+#| out-width: 100%
+#| fig-width: 5
+#| fig-height: 5
+#| fig-align: "center"
+
+test_pred %>% 
+  roc_curve(Class, .pred_Impaired) %>% 
+  autoplot()
+```
+:::
+
+::::
+
+
+## Test set calibration curve
+
+:::: {.columns}
+
+::: {.column width="50%"}
+```{r}
+#| label: test-cal-code
+#| eval: false
+test_pred %>%
+  cal_plot_windowed(truth = Class,
+                    estimate = .pred_Impaired,
+                    step_size = 0.025)
+```
+:::
+
+::: {.column width="50%"}
+```{r}
+#| label: test-cal-plot
+#| echo: false
+#| out-width: 100%
+#| fig-width: 5
+#| fig-height: 5
+#| fig-align: "center"
+# due to small sample size, use a logistic plot
+test_pred %>%
+  cal_plot_logistic(
+    truth = Class,
+    estimate = .pred_Impaired
+  )
+```
+:::
+
+::::
+
 
 ## Next steps
 

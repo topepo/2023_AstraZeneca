@@ -88,7 +88,7 @@
     "href": "index.html#loading-the-meta-package",
     "title": "(tidy)Modeling Workshop",
     "section": "Loading the Meta-Package",
-    "text": "Loading the Meta-Package\n\n\n\nlibrary(tidymodels)\ntidymodels_prefer(quiet = FALSE)\n\ndata(Chicago, package = \"modeldata\")\n\n\nLet’s start by predicting the ridership of the Chicago “L” trains.\nWe have data over 5,698 days between 2001 and 2016 in Chicago.\nWhat are our predictors? Date, weather data, home game schedules, 14-day lags at other stations."
+    "text": "Loading the Meta-Package\n\n\n\nlibrary(tidymodels)\ntidymodels_prefer()\n\ndata(Chicago, package = \"modeldata\")\n\n\nLet’s start by predicting the ridership of the Chicago “L” trains.\nWe have data over 5,698 days between 2001 and 2016 in Chicago.\nWhat are our predictors? Date, weather data, home game schedules, 14-day lags at other stations."
   },
   {
     "objectID": "index.html#what-are-our-features",
@@ -320,6 +320,41 @@
     "title": "(tidy)Modeling Workshop",
     "section": "Exercise!",
     "text": "Exercise!\nYou have two options:\n\nTry adding a feature extraction method (one example being PCA) to the recipe and also optimize its parameters.\n\n… or …\n\nUse sub-sampling methods for class imbalances to pre-process the data.\n\nHow do we find the possible recipe steps?"
+  },
+  {
+    "objectID": "index.html#picking-a-final-model",
+    "href": "index.html#picking-a-final-model",
+    "title": "(tidy)Modeling Workshop",
+    "section": "Picking a final model",
+    "text": "Picking a final model\nNormally, after searching through models, we pick one that we think should go forward.\n\nnnet_wflow &lt;- \n  nnet_rec %&gt;% \n  workflow(nnet_mod) %&gt;% \n  finalize_workflow(best_nnet)\nnnet_wflow\n#&gt; ══ Workflow ════════════════════════════════════════════════════════════════════\n#&gt; Preprocessor: Recipe\n#&gt; Model: mlp()\n#&gt; \n#&gt; ── Preprocessor ────────────────────────────────────────────────────────────────\n#&gt; 3 Recipe Steps\n#&gt; \n#&gt; • step_dummy()\n#&gt; • step_zv()\n#&gt; • step_normalize()\n#&gt; \n#&gt; ── Model ───────────────────────────────────────────────────────────────────────\n#&gt; Single Layer Neural Network Model Specification (classification)\n#&gt; \n#&gt; Main Arguments:\n#&gt;   hidden_units = 2\n#&gt;   penalty = 0.764635581502846\n#&gt;   epochs = 978\n#&gt; \n#&gt; Computational engine: nnet"
+  },
+  {
+    "objectID": "index.html#fitting-the-final-model",
+    "href": "index.html#fitting-the-final-model",
+    "title": "(tidy)Modeling Workshop",
+    "section": "Fitting the final model",
+    "text": "Fitting the final model\nLet’s fit a model of ours on the the entire training set.\nIf we originally used initial_split(), we can also use last_fit() to do this:\n\ntest_res &lt;- \n  nnet_wflow %&gt;% \n  last_fit(split = ad_split)\n\nextract_fit_engine(test_res)\n#&gt; a 134-2-1 network with 273 weights\n#&gt; inputs: ACE_CD143_Angiotensin_Converti ACTH_Adrenocorticotropic_Hormon AXL Adiponectin Alpha_1_Antichymotrypsin Alpha_1_Antitrypsin Alpha_1_Microglobulin Alpha_2_Macroglobulin Angiopoietin_2_ANG_2 Angiotensinogen Apolipoprotein_A_IV Apolipoprotein_A1 Apolipoprotein_A2 Apolipoprotein_B Apolipoprotein_CI Apolipoprotein_CIII Apolipoprotein_D Apolipoprotein_E Apolipoprotein_H B_Lymphocyte_Chemoattractant_BL BMP_6 Beta_2_Microglobulin Betacellulin C_Reactive_Protein CD40 CD5L Calbindin Calcitonin CgA Clusterin_Apo_J Complement_3 Complement_Factor_H Connective_Tissue_Growth_Factor Cortisol Creatine_Kinase_MB Cystatin_C EGF_R EN_RAGE ENA_78 Eotaxin_3 FAS FSH_Follicle_Stimulation_Hormon Fas_Ligand Fatty_Acid_Binding_Protein Ferritin Fetuin_A Fibrinogen GRO_alpha Gamma_Interferon_induced_Monokin Glutathione_S_Transferase_alpha HB_EGF HCC_4 Hepatocyte_Growth_Factor_HGF I_309 ICAM_1 IGF_BP_2 IL_11 IL_13 IL_16 IL_17E IL_1alpha IL_3 IL_4 IL_5 IL_6 IL_6_Receptor IL_7 IL_8 IP_10_Inducible_Protein_10 IgA Insulin Kidney_Injury_Molecule_1_KIM_1 LOX_1 Leptin Lipoprotein_a MCP_1 MCP_2 MIF MIP_1alpha MIP_1beta MMP_2 MMP_3 MMP10 MMP7 Myoglobin NT_proBNP NrCAM Osteopontin PAI_1 PAPP_A PLGF PYY Pancreatic_polypeptide Prolactin Prostatic_Acid_Phosphatase Protein_S Pulmonary_and_Activation_Regulat RANTES Resistin S100b SGOT SHBG SOD Serum_Amyloid_P Sortilin Stem_Cell_Factor TGF_alpha TIMP_1 TNF_RII TRAIL_R3 TTR_prealbumin Tamm_Horsfall_Protein_THP Thrombomodulin Thrombopoietin Thymus_Expressed_Chemokine_TECK Thyroid_Stimulating_Hormone Thyroxine_Binding_Globulin Tissue_Factor Transferrin Trefoil_Factor_3_TFF3 VCAM_1 VEGF Vitronectin von_Willebrand_Factor age tau p_tau Ab_42 male Genotype_E2E3 Genotype_E2E4 Genotype_E3E3 Genotype_E3E4 Genotype_E4E4 \n#&gt; output(s): ..y \n#&gt; options were - entropy fitting  decay=0.765"
+  },
+  {
+    "objectID": "index.html#test-set-evaluation",
+    "href": "index.html#test-set-evaluation",
+    "title": "(tidy)Modeling Workshop",
+    "section": "Test set evaluation",
+    "text": "Test set evaluation\nOrdinarily, we would use collect_metrics() on this to get our test set results.\nHowever, we have to apply the calibration the test set predictions first:\n\ntest_pred &lt;- \n  test_res %&gt;% \n  collect_predictions() %&gt;% \n  cal_apply(ad_cal)\n\ncls_metrics &lt;- metric_set(roc_auc, brier_class)\ncls_metrics(test_pred, Class, .pred_Impaired)\n#&gt; # A tibble: 2 × 3\n#&gt;   .metric     .estimator .estimate\n#&gt;   &lt;chr&gt;       &lt;chr&gt;          &lt;dbl&gt;\n#&gt; 1 roc_auc     binary         0.860\n#&gt; 2 brier_class binary         0.127"
+  },
+  {
+    "objectID": "index.html#test-set-roc-curve",
+    "href": "index.html#test-set-roc-curve",
+    "title": "(tidy)Modeling Workshop",
+    "section": "Test set ROC curve",
+    "text": "Test set ROC curve\n\n\n\ntest_pred %&gt;% \n  roc_curve(Class, .pred_Impaired) %&gt;% \n  autoplot()"
+  },
+  {
+    "objectID": "index.html#test-set-calibration-curve",
+    "href": "index.html#test-set-calibration-curve",
+    "title": "(tidy)Modeling Workshop",
+    "section": "Test set calibration curve",
+    "text": "Test set calibration curve\n\n\n\ntest_pred %&gt;%\n  cal_plot_windowed(truth = Class,\n                    estimate = .pred_Impaired,\n                    step_size = 0.025)"
   },
   {
     "objectID": "index.html#next-steps",

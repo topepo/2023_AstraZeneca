@@ -597,7 +597,7 @@ Max Kuhn
 <div class="column" style="width:50%;">
 <div class="cell">
 <div class="sourceCode cell-code" id="cb3"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1"></a><span class="fu">library</span>(tidymodels)</span>
-<span id="cb3-2"><a href="#cb3-2"></a><span class="fu">tidymodels_prefer</span>(<span class="at">quiet =</span> <span class="cn">FALSE</span>)</span>
+<span id="cb3-2"><a href="#cb3-2"></a><span class="fu">tidymodels_prefer</span>()</span>
 <span id="cb3-3"><a href="#cb3-3"></a></span>
 <span id="cb3-4"><a href="#cb3-4"></a><span class="fu">data</span>(Chicago, <span class="at">package =</span> <span class="st">"modeldata"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
@@ -1131,6 +1131,117 @@ Max Kuhn
 <li>Use sub-sampling methods for class imbalances to pre-process the data.</li>
 </ul>
 <p>How do we find the possible recipe steps?</p>
+</section>
+<section id="picking-a-final-model" class="slide level2">
+<h2>Picking a final model</h2>
+<p>Normally, after searching through models, we pick one that we think should go forward.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb34"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb34-1"><a href="#cb34-1"></a>nnet_wflow <span class="ot">&lt;-</span> </span>
+<span id="cb34-2"><a href="#cb34-2"></a>  nnet_rec <span class="sc">%&gt;%</span> </span>
+<span id="cb34-3"><a href="#cb34-3"></a>  <span class="fu">workflow</span>(nnet_mod) <span class="sc">%&gt;%</span> </span>
+<span id="cb34-4"><a href="#cb34-4"></a>  <span class="fu">finalize_workflow</span>(best_nnet)</span>
+<span id="cb34-5"><a href="#cb34-5"></a>nnet_wflow</span>
+<span id="cb34-6"><a href="#cb34-6"></a><span class="co">#&gt; ══ Workflow ════════════════════════════════════════════════════════════════════</span></span>
+<span id="cb34-7"><a href="#cb34-7"></a><span class="co">#&gt; Preprocessor: Recipe</span></span>
+<span id="cb34-8"><a href="#cb34-8"></a><span class="co">#&gt; Model: mlp()</span></span>
+<span id="cb34-9"><a href="#cb34-9"></a><span class="co">#&gt; </span></span>
+<span id="cb34-10"><a href="#cb34-10"></a><span class="co">#&gt; ── Preprocessor ────────────────────────────────────────────────────────────────</span></span>
+<span id="cb34-11"><a href="#cb34-11"></a><span class="co">#&gt; 3 Recipe Steps</span></span>
+<span id="cb34-12"><a href="#cb34-12"></a><span class="co">#&gt; </span></span>
+<span id="cb34-13"><a href="#cb34-13"></a><span class="co">#&gt; • step_dummy()</span></span>
+<span id="cb34-14"><a href="#cb34-14"></a><span class="co">#&gt; • step_zv()</span></span>
+<span id="cb34-15"><a href="#cb34-15"></a><span class="co">#&gt; • step_normalize()</span></span>
+<span id="cb34-16"><a href="#cb34-16"></a><span class="co">#&gt; </span></span>
+<span id="cb34-17"><a href="#cb34-17"></a><span class="co">#&gt; ── Model ───────────────────────────────────────────────────────────────────────</span></span>
+<span id="cb34-18"><a href="#cb34-18"></a><span class="co">#&gt; Single Layer Neural Network Model Specification (classification)</span></span>
+<span id="cb34-19"><a href="#cb34-19"></a><span class="co">#&gt; </span></span>
+<span id="cb34-20"><a href="#cb34-20"></a><span class="co">#&gt; Main Arguments:</span></span>
+<span id="cb34-21"><a href="#cb34-21"></a><span class="co">#&gt;   hidden_units = 2</span></span>
+<span id="cb34-22"><a href="#cb34-22"></a><span class="co">#&gt;   penalty = 0.764635581502846</span></span>
+<span id="cb34-23"><a href="#cb34-23"></a><span class="co">#&gt;   epochs = 978</span></span>
+<span id="cb34-24"><a href="#cb34-24"></a><span class="co">#&gt; </span></span>
+<span id="cb34-25"><a href="#cb34-25"></a><span class="co">#&gt; Computational engine: nnet</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="fitting-the-final-model" class="slide level2">
+<h2>Fitting the final model</h2>
+<p>Let’s fit a model of ours on the the entire training set.</p>
+<p>If we originally used <code>initial_split()</code>, we can also use <code>last_fit()</code> to do this:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb35"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb35-1"><a href="#cb35-1"></a>test_res <span class="ot">&lt;-</span> </span>
+<span id="cb35-2"><a href="#cb35-2"></a>  nnet_wflow <span class="sc">%&gt;%</span> </span>
+<span id="cb35-3"><a href="#cb35-3"></a>  <span class="fu">last_fit</span>(<span class="at">split =</span> ad_split)</span>
+<span id="cb35-4"><a href="#cb35-4"></a></span>
+<span id="cb35-5"><a href="#cb35-5"></a><span class="fu">extract_fit_engine</span>(test_res)</span>
+<span id="cb35-6"><a href="#cb35-6"></a><span class="co">#&gt; a 134-2-1 network with 273 weights</span></span>
+<span id="cb35-7"><a href="#cb35-7"></a><span class="co">#&gt; inputs: ACE_CD143_Angiotensin_Converti ACTH_Adrenocorticotropic_Hormon AXL Adiponectin Alpha_1_Antichymotrypsin Alpha_1_Antitrypsin Alpha_1_Microglobulin Alpha_2_Macroglobulin Angiopoietin_2_ANG_2 Angiotensinogen Apolipoprotein_A_IV Apolipoprotein_A1 Apolipoprotein_A2 Apolipoprotein_B Apolipoprotein_CI Apolipoprotein_CIII Apolipoprotein_D Apolipoprotein_E Apolipoprotein_H B_Lymphocyte_Chemoattractant_BL BMP_6 Beta_2_Microglobulin Betacellulin C_Reactive_Protein CD40 CD5L Calbindin Calcitonin CgA Clusterin_Apo_J Complement_3 Complement_Factor_H Connective_Tissue_Growth_Factor Cortisol Creatine_Kinase_MB Cystatin_C EGF_R EN_RAGE ENA_78 Eotaxin_3 FAS FSH_Follicle_Stimulation_Hormon Fas_Ligand Fatty_Acid_Binding_Protein Ferritin Fetuin_A Fibrinogen GRO_alpha Gamma_Interferon_induced_Monokin Glutathione_S_Transferase_alpha HB_EGF HCC_4 Hepatocyte_Growth_Factor_HGF I_309 ICAM_1 IGF_BP_2 IL_11 IL_13 IL_16 IL_17E IL_1alpha IL_3 IL_4 IL_5 IL_6 IL_6_Receptor IL_7 IL_8 IP_10_Inducible_Protein_10 IgA Insulin Kidney_Injury_Molecule_1_KIM_1 LOX_1 Leptin Lipoprotein_a MCP_1 MCP_2 MIF MIP_1alpha MIP_1beta MMP_2 MMP_3 MMP10 MMP7 Myoglobin NT_proBNP NrCAM Osteopontin PAI_1 PAPP_A PLGF PYY Pancreatic_polypeptide Prolactin Prostatic_Acid_Phosphatase Protein_S Pulmonary_and_Activation_Regulat RANTES Resistin S100b SGOT SHBG SOD Serum_Amyloid_P Sortilin Stem_Cell_Factor TGF_alpha TIMP_1 TNF_RII TRAIL_R3 TTR_prealbumin Tamm_Horsfall_Protein_THP Thrombomodulin Thrombopoietin Thymus_Expressed_Chemokine_TECK Thyroid_Stimulating_Hormone Thyroxine_Binding_Globulin Tissue_Factor Transferrin Trefoil_Factor_3_TFF3 VCAM_1 VEGF Vitronectin von_Willebrand_Factor age tau p_tau Ab_42 male Genotype_E2E3 Genotype_E2E4 Genotype_E3E3 Genotype_E3E4 Genotype_E4E4 </span></span>
+<span id="cb35-8"><a href="#cb35-8"></a><span class="co">#&gt; output(s): ..y </span></span>
+<span id="cb35-9"><a href="#cb35-9"></a><span class="co">#&gt; options were - entropy fitting  decay=0.765</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="test-set-evaluation" class="slide level2">
+<h2>Test set evaluation</h2>
+<p><em>Ordinarily</em>, we would use <code>collect_metrics()</code> on this to get our test set results.</p>
+<p>However, we have to apply the calibration the test set predictions first:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb36"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb36-1"><a href="#cb36-1"></a>test_pred <span class="ot">&lt;-</span> </span>
+<span id="cb36-2"><a href="#cb36-2"></a>  test_res <span class="sc">%&gt;%</span> </span>
+<span id="cb36-3"><a href="#cb36-3"></a>  <span class="fu">collect_predictions</span>() <span class="sc">%&gt;%</span> </span>
+<span id="cb36-4"><a href="#cb36-4"></a>  <span class="fu">cal_apply</span>(ad_cal)</span>
+<span id="cb36-5"><a href="#cb36-5"></a></span>
+<span id="cb36-6"><a href="#cb36-6"></a>cls_metrics <span class="ot">&lt;-</span> <span class="fu">metric_set</span>(roc_auc, brier_class)</span>
+<span id="cb36-7"><a href="#cb36-7"></a><span class="fu">cls_metrics</span>(test_pred, Class, .pred_Impaired)</span>
+<span id="cb36-8"><a href="#cb36-8"></a><span class="co">#&gt; # A tibble: 2 × 3</span></span>
+<span id="cb36-9"><a href="#cb36-9"></a><span class="co">#&gt;   .metric     .estimator .estimate</span></span>
+<span id="cb36-10"><a href="#cb36-10"></a><span class="co">#&gt;   &lt;chr&gt;       &lt;chr&gt;          &lt;dbl&gt;</span></span>
+<span id="cb36-11"><a href="#cb36-11"></a><span class="co">#&gt; 1 roc_auc     binary         0.860</span></span>
+<span id="cb36-12"><a href="#cb36-12"></a><span class="co">#&gt; 2 brier_class binary         0.127</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="test-set-roc-curve" class="slide level2">
+<h2>Test set ROC curve</h2>
+<div class="columns">
+<div class="column" style="width:50%;">
+<div class="cell">
+<div class="sourceCode cell-code" id="cb37"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb37-1"><a href="#cb37-1"></a>test_pred <span class="sc">%&gt;%</span> </span>
+<span id="cb37-2"><a href="#cb37-2"></a>  <span class="fu">roc_curve</span>(Class, .pred_Impaired) <span class="sc">%&gt;%</span> </span>
+<span id="cb37-3"><a href="#cb37-3"></a>  <span class="fu">autoplot</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</div><div class="column" style="width:50%;">
+<div class="cell" data-layout-align="center">
+<div class="cell-output-display">
+<div class="quarto-figure quarto-figure-center">
+<figure>
+<p><img data-src="figures/roc-curve-1.svg" style="width:100.0%"></p>
+</figure>
+</div>
+</div>
+</div>
+</div>
+</div>
+</section>
+<section id="test-set-calibration-curve" class="slide level2">
+<h2>Test set calibration curve</h2>
+<div class="columns">
+<div class="column" style="width:50%;">
+<div class="cell">
+<div class="sourceCode cell-code" id="cb38"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb38-1"><a href="#cb38-1"></a>test_pred <span class="sc">%&gt;%</span></span>
+<span id="cb38-2"><a href="#cb38-2"></a>  <span class="fu">cal_plot_windowed</span>(<span class="at">truth =</span> Class,</span>
+<span id="cb38-3"><a href="#cb38-3"></a>                    <span class="at">estimate =</span> .pred_Impaired,</span>
+<span id="cb38-4"><a href="#cb38-4"></a>                    <span class="at">step_size =</span> <span class="fl">0.025</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</div><div class="column" style="width:50%;">
+<div class="cell" data-layout-align="center">
+<div class="cell-output-display">
+<div class="quarto-figure quarto-figure-center">
+<figure>
+<p><img data-src="figures/test-cal-plot-1.svg" style="width:100.0%"></p>
+</figure>
+</div>
+</div>
+</div>
+</div>
+</div>
 </section>
 <section id="next-steps" class="slide level2">
 <h2>Next steps</h2>
