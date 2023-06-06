@@ -1,5 +1,12 @@
 [
   {
+    "objectID": "index.html#about-me",
+    "href": "index.html#about-me",
+    "title": "(tidy)Modeling Workshop",
+    "section": "About me",
+    "text": "About me\n\nBecton-Dickinson (6y): molecular diagnostics for infectious diseases, non-clinical and clinical\nPfizer (12y): nonclinical, Med chem, Comp {bio,chem} support\nRStudio posit PBC (&gt;= 2016): modeling packages\n\nSelected R packages: caret, C50, Cubist, a lot of tidymodels\n\nApplied Predictive Modeling\nFeature Engineering and Selection\nTidy Models with R\nNonclinical Statistics for Pharmaceutical and Biotechnology Industries (ed, auth)"
+  },
+  {
     "objectID": "index.html#modeling-in-r",
     "href": "index.html#modeling-in-r",
     "title": "(tidy)Modeling Workshop",
@@ -32,7 +39,7 @@
     "href": "index.html#numeric-glmnet-predictions",
     "title": "(tidy)Modeling Workshop",
     "section": "Numeric glmnet Predictions",
-    "text": "Numeric glmnet Predictions\nPredicting a numeric outcome for two new data points:\n\nnew_x\n#&gt;             x1     x2     x3     x4\n#&gt; sample_1 1.649 -0.483 -0.294 -0.815\n#&gt; sample_2 0.656 -0.420  0.880  0.109\n\npredict(reg_mod, newx = new_x)\n#&gt;            s0   s1 s2\n#&gt; sample_1 9.95 9.95 10\n#&gt; sample_2 9.95 9.95 10\n\nA matrix result and we will assume that the \\(\\lambda\\) values are in the same order as what we gave to the model fit function."
+    "text": "Numeric glmnet Predictions\nPredicting a numeric outcome for two new data points:\n\nnew_x\n#&gt;             x1     x2     x3     x4\n#&gt; sample_1 1.649 -0.483 -0.294 -0.815\n#&gt; sample_2 0.656 -0.420  0.880  0.109\n\npredict(reg_mod, newx = new_x)\n#&gt;          s0 s1 s2\n#&gt; sample_1 10 10 10\n#&gt; sample_2 10 10 10\n\nA matrix result and we will assume that the \\(\\lambda\\) values are in the same order as what we gave to the model fit function."
   },
   {
     "objectID": "index.html#glmnet-predictions-formats",
@@ -46,7 +53,7 @@
     "href": "index.html#glmnet-predictions-formats-1",
     "title": "(tidy)Modeling Workshop",
     "section": "glmnet predictions formats",
-    "text": "glmnet predictions formats\n😳\nMost people have at least four different scripts for the same model\n\nAm I working for glmnet or is it is working for me?\n\nMaybe a structure like this would work better:\n\n#&gt; # A tibble: 6 × 4\n#&gt;       a     b     c lambda\n#&gt;   &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt;  &lt;dbl&gt;\n#&gt; 1 0.333 0.333 0.333   1   \n#&gt; 2 0.333 0.333 0.333   1   \n#&gt; 3 0.333 0.333 0.333   0.1 \n#&gt; 4 0.333 0.333 0.333   0.1 \n#&gt; 5 0.373 0.244 0.383   0.01\n#&gt; 6 0.327 0.339 0.334   0.01"
+    "text": "glmnet predictions formats\n😳\nMost people have at least four different scripts for the same model\n\nAm I working for glmnet or is it is working for me?\n\nMaybe a structure like this would work better:\n\n#&gt; # A tibble: 6 × 5\n#&gt;       a     b     c lambda  .row\n#&gt;   &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt;  &lt;dbl&gt; &lt;int&gt;\n#&gt; 1 0.373 0.244 0.383 0.01       1\n#&gt; 2 0.327 0.339 0.334 0.01       1\n#&gt; 3 0.389 0.220 0.391 0.001      2\n#&gt; 4 0.326 0.337 0.338 0.001      2\n#&gt; 5 0.390 0.217 0.392 0.0001     3\n#&gt; 6 0.326 0.336 0.338 0.0001     3"
   },
   {
     "objectID": "index.html#the-tidyverse",
@@ -60,7 +67,7 @@
     "href": "index.html#the-tidyverse-1",
     "title": "(tidy)Modeling Workshop",
     "section": "The Tidyverse",
-    "text": "The Tidyverse\nFor example, we try to use common prefixes for auto-complete: grid_latin_hypercube(), grid_max_entropy(), …\nThere is also the notion of tidy data:\n\nEach variable forms a column.\nEach observation forms a row.\nEach type of observational unit forms a table.\n\nBased on these ideas, we can create modeling packages that have predictable results and are a pleasure to use."
+    "text": "The Tidyverse\nFor example, we try to use common prefixes for auto-complete: tune_grid(), tune_bayes(), …\nThere is also the notion of tidy data:\n\nEach variable forms a column.\nEach observation forms a row.\nEach type of observational unit forms a table.\n\nBased on these ideas, we can create modeling packages that have predictable results and are a pleasure to use."
   },
   {
     "objectID": "index.html#tidymodels",

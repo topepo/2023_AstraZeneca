@@ -1,5 +1,10 @@
 ---
 title: "(tidy)Modeling Workshop"
+author: "Max Kuhn"
+title-slide-attributes:
+  data-background-image: images/hex_wall.png
+  data-background-size: contain
+  data-background-opacity: "0.07"
 format:
   revealjs: 
     slide-number: true
@@ -39,7 +44,18 @@ registerDoMC(cores = parallel::detectCores(logical = TRUE))
 
 ```
 
+## About me
 
+ - Becton-Dickinson (6y): molecular diagnostics for infectious diseases, non-clinical and clinical
+ - Pfizer (12y): nonclinical, Med chem, Comp {bio,chem} support
+ - <span style="color:LightGray;"><strike>RStudio</strike></span> posit PBC (>= 2016): modeling packages
+ 
+Selected R packages: [`caret`](https://topepo.github.io/caret/), [`C50`](https://topepo.github.io/C5.0/), [`Cubist`](https://topepo.github.io/Cubist/), a lot of [tidymodels](https://github.com/orgs/tidymodels/repositories)
+
+ - [_Applied Predictive Modeling_](http://appliedpredictivemodeling.com)
+ - [_Feature Engineering and Selection_](https://bookdown.org/max/FES)
+ - [_Tidy Models with R_](http://tmwr.org)
+ - [_Nonclinical Statistics for Pharmaceutical and Biotechnology Industries_](https://link.springer.com/book/10.1007/978-3-319-23558-5) (ed, auth) 
 
 ## Modeling in R
 
@@ -98,8 +114,9 @@ x <- as.matrix(dat[,-(1:3)])
 new_x <- head(x, 2)
 rownames(new_x) <- paste0("sample_", 1:2)
 
+penalties <- c(0.0001, 0.001, 0.01)
 reg_mod <-
-  glmnet(x, y = dat$numeric, lambda = c(0.01, 0.1, 1))
+  glmnet(x, y = dat$numeric, lambda = penalties)
 
 two_class_mod <-
   glmnet(
@@ -107,7 +124,7 @@ two_class_mod <-
     y = dat$two_class,
     nlambda = 3,
     family = "binomial", 
-    lambda = c(0.01, 0.1, 1)
+    lambda = penalties
   )
 
 three_class_mod <-
@@ -116,7 +133,7 @@ three_class_mod <-
     y = dat$three_class,
     nlambda = 3,
     family = "multinomial", 
-    lambda = c(0.01, 0.1, 1)
+    lambda = penalties
   )
 
 three_pred <- predict(three_class_mod, newx = new_x, type = "response")
@@ -124,6 +141,7 @@ three_pred <- apply(three_pred, 3, function(x) data.frame(x))
 three_pred <- dplyr::bind_rows(three_pred)
 three_pred <- dplyr::mutate(three_pred, lambda = rep(three_class_mod$lambda, each = 2))
 three_pred <- tibble::as_tibble(three_pred)
+three_pred$.row <- rep(1:3, each = 2)
 ```
  
 The `glmnet` model can be used to fit regularized generalized linear models with a mixture of L<sub>1</sub> and L<sub>2</sub> penalties. 
@@ -193,7 +211,7 @@ three_pred
 
 
 
-# Our job is to make modeling data with R ~~suck less~~ better.
+# tidymodels: Our job is to make modeling data with R <span style="color:LightGray;"><strike>suck less</strike></span> better.
 
 # _It's actually pretty good_
 
@@ -218,7 +236,7 @@ This results in more specific conventions around interfaces, function naming, et
 
 ## The Tidyverse
 
-For example, we try to use common prefixes for auto-complete:  `grid_latin_hypercube()`, `grid_max_entropy()`, ...
+For example, we try to use common prefixes for auto-complete:  `tune_grid()`, `tune_bayes()`, ...
 
 There is also the notion of [tidy data](http://vita.had.co.nz/papers/tidy-data.pdf):
 
